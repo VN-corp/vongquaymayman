@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎯 Vòng Quay Vận May</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0c29;
+    --bg2: #302b63;
+    --gold: #f7c948;
+    --gold2: #e8a800;
+    --white: #fff;
+    --panel: rgba(255,255,255,0.06);
+    --border: rgba(255,255,255,0.13);
+    --radius: 18px;
+    --shadow: 0 8px 40px rgba(0,0,0,0.5);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+    font-family: 'Nunito', sans-serif;
+    color: var(--white);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+  }
+
+  /* Stars background */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 30% 70%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 60% 10%, rgba(255,255,255,0.7) 0%, transparent 100%),
+      radial-gradient(1px 1px at 80% 50%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 45% 85%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(2px 2px at 70% 30%, rgba(247,201,72,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 20% 55%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 90% 80%, rgba(255,255,255,0.6) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    position: relative; z-index: 1;
+    text-align: center;
+    padding: 32px 20px 16px;
+  }
+
+  header h1 {
+    font-family: 'Baloo 2', cursive;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 800;
+    background: linear-gradient(90deg, #f7c948, #ff6fd8, #f7c948);
+    background-size: 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 3s linear infinite;
+    letter-spacing: -0.5px;
+  }
+
+  @keyframes shimmer { to { background-position: 200% center; } }
+
+  header p {
+    color: rgba(255,255,255,0.55);
+    font-size: 0.95rem;
+    margin-top: 4px;
+  }
+
+  .main-wrap {
+    position: relative; z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 28px;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 16px 20px 40px;
+    max-width: 980px;
+    width: 100%;
+  }
+
+  /* ---- WHEEL AREA ---- */
+  .wheel-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 22px;
+  }
+
+  .wheel-outer {
+    position: relative;
+    width: 380px; height: 380px;
+    filter: drop-shadow(0 0 32px rgba(247,201,72,0.25));
+  }
+
+  /* Decorative ring */
+  .wheel-outer::before {
+    content: '';
+    position: absolute;
+    inset: -14px;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, #f7c948, #ff6fd8, #a78bfa, #38bdf8, #34d399, #f7c948);
+    animation: spin-ring 8s linear infinite;
+    z-index: -1;
+  }
+
+  .wheel-outer::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    background: var(--bg2);
+    z-index: -1;
+  }
+
+  @keyframes spin-ring { to { transform: rotate(360deg); } }
+
+  #wheelCanvas {
+    border-radius: 50%;
+    cursor: pointer;
+    transition: filter 0.3s;
+    display: block;
+  }
+
+  #wheelCanvas:hover { filter: brightness(1.08); }
+
+  /* Arrow pointer */
+  .arrow-wrap {
+    position: absolute;
+    top: 50%;
+    right: -18px;
+    transform: translateY(-50%);
+    z-index: 10;
+  }
+
+  .arrow {
+    width: 0; height: 0;
+    border-top: 18px solid transparent;
+    border-bottom: 18px solid transparent;
+    border-right: 38px solid #f7c948;
+    filter: drop-shadow(0 0 8px #f7c948);
+  }
+
+  /* Center button */
+  .center-btn {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #fff 0%, #f7c948 40%, #e8a800 100%);
+    border: 4px solid rgba(255,255,255,0.7);
+    box-shadow: 0 0 24px rgba(247,201,72,0.7), inset 0 2px 4px rgba(255,255,255,0.5);
+    cursor: pointer;
+    font-family: 'Baloo 2', cursive;
+    font-weight: 800;
+    font-size: 0.7rem;
+    color: #7c4a00;
+    transition: transform 0.15s, box-shadow 0.15s;
+    z-index: 20;
+    letter-spacing: 0.5px;
+  }
+
+  .center-btn:hover {
+    transform: translate(-50%, -50%) scale(1.08);
+    box-shadow: 0 0 36px rgba(247,201,72,0.9), inset 0 2px 4px rgba(255,255,255,0.5);
+  }
+
+  .center-btn:active { transform: translate(-50%, -50%) scale(0.96); }
+
+  /* Spin button */
+  .spin-btn {
+    padding: 14px 48px;
+    border-radius: 50px;
+    border: none;
+    background: linear-gradient(135deg, #f7c948 0%, #ff6fd8 100%);
+    color: #1a0a3c;
+    font-family: 'Baloo 2', cursive;
+    font-weight: 800;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    box-shadow: 0 4px 24px rgba(247,201,72,0.4);
+    transition: transform 0.15s, box-shadow 0.15s, opacity 0.2s;
+  }
+
+  .spin-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(247,201,72,0.6); }
+  .spin-btn:active { transform: translateY(0); }
+  .spin-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* ---- PANEL ---- */
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    backdrop-filter: blur(12px);
+    padding: 22px;
+    width: 280px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .panel h2 {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .entries-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 320px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+
+  .entries-list::-webkit-scrollbar { width: 4px; }
+  .entries-list::-webkit-scrollbar-track { background: transparent; }
+  .entries-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
+
+  .entry-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.09);
+    font-size: 0.88rem;
+    transition: background 0.2s;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn { from { opacity:0; transform: translateY(-6px); } to { opacity:1; transform: none; } }
+
+  .entry-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .entry-text {
+    flex: 1;
+    font-weight: 700;
+    color: rgba(255,255,255,0.9);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .entry-del {
+    background: none; border: none;
+    color: rgba(255,80,80,0.7);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: color 0.2s, background 0.2s;
+  }
+
+  .entry-del:hover { color: #ff5050; background: rgba(255,80,80,0.1); }
+
+  .add-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .add-input {
+    flex: 1;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 10px;
+    padding: 9px 12px;
+    color: white;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .add-input:focus { border-color: var(--gold); }
+  .add-input::placeholder { color: rgba(255,255,255,0.35); }
+
+  .add-btn {
+    padding: 9px 14px;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(135deg, #f7c948, #e8a800);
+    color: #1a0a3c;
+    font-weight: 900;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+
+  .add-btn:hover { transform: scale(1.08); }
+
+  .result-badge {
+    background: linear-gradient(135deg, rgba(247,201,72,0.15), rgba(255,111,216,0.1));
+    border: 1px solid rgba(247,201,72,0.3);
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+    min-height: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .result-label {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.45);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+
+  .result-value {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--gold);
+    animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes popIn {
+    from { transform: scale(0.5); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  /* ---- MODAL OVERLAY ---- */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(6px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    animation: fadeOverlay 0.2s ease;
+  }
+
+  .modal-overlay.active { display: flex; }
+
+  @keyframes fadeOverlay { from { opacity: 0; } to { opacity: 1; } }
+
+  .modal {
+    background: linear-gradient(135deg, #1a1440 0%, #2d1f6b 100%);
+    border: 1px solid rgba(247,201,72,0.3);
+    border-radius: 24px;
+    padding: 32px;
+    width: min(420px, 92vw);
+    box-shadow: 0 24px 80px rgba(0,0,0,0.7);
+    animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(30px) scale(0.95); opacity: 0; }
+    to { transform: none; opacity: 1; }
+  }
+
+  .modal-icon {
+    text-align: center;
+    font-size: 2.8rem;
+    margin-bottom: 8px;
+  }
+
+  .modal h2 {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--gold);
+    text-align: center;
+    margin-bottom: 6px;
+  }
+
+  .modal p.sub {
+    text-align: center;
+    color: rgba(255,255,255,0.5);
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+  }
+
+  .modal label {
+    display: block;
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 6px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .modal textarea, .modal input[type="text"], .modal input[type="password"] {
+    width: 100%;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    padding: 11px 14px;
+    color: white;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+    resize: vertical;
+    transition: border-color 0.2s;
+    margin-bottom: 14px;
+  }
+
+  .modal textarea { min-height: 130px; }
+
+  .modal textarea:focus,
+  .modal input:focus { border-color: var(--gold); }
+
+  .modal-hint {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.38);
+    margin-top: -10px;
+    margin-bottom: 14px;
+  }
+
+  .modal-btns {
+    display: flex;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .btn-ok {
+    flex: 1;
+    padding: 12px;
+    border-radius: 50px;
+    border: none;
+    background: linear-gradient(135deg, #f7c948, #ff6fd8);
+    color: #1a0a3c;
+    font-family: 'Baloo 2', cursive;
+    font-weight: 800;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 16px rgba(247,201,72,0.3);
+  }
+
+  .btn-ok:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(247,201,72,0.5); }
+
+  .btn-cancel {
+    padding: 12px 20px;
+    border-radius: 50px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: transparent;
+    color: rgba(255,255,255,0.6);
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-cancel:hover { background: rgba(255,255,255,0.07); color: white; }
+
+  .modal-close {
+    position: absolute;
+    top: 14px; right: 16px;
+    background: none; border: none;
+    color: rgba(255,255,255,0.4);
+    font-size: 1.3rem;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+
+  .modal-close:hover { color: white; }
+
+  /* ---- RESULT MODAL ---- */
+  .result-modal .confetti-area {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    border-radius: 24px;
+  }
+
+  .confetti-dot {
+    position: absolute;
+    width: 8px; height: 8px;
+    border-radius: 2px;
+    animation: confettiFall 1.5s ease-out forwards;
+    opacity: 0;
+  }
+
+  @keyframes confettiFall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(200px) rotate(360deg); opacity: 0; }
+  }
+
+  .result-winner {
+    font-family: 'Baloo 2', cursive;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--gold);
+    text-align: center;
+    margin: 16px 0;
+    text-shadow: 0 0 30px rgba(247,201,72,0.5);
+    animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 30px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(247,201,72,0.15);
+    border: 1px solid rgba(247,201,72,0.4);
+    color: var(--gold);
+    padding: 10px 22px;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s, transform 0.3s;
+    z-index: 2000;
+    backdrop-filter: blur(8px);
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* Turns display */
+  .turns-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(247,201,72,0.08);
+    border: 1px solid rgba(247,201,72,0.2);
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-size: 0.85rem;
+  }
+
+  .turns-info span { color: rgba(255,255,255,0.6); }
+  .turns-count {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--gold);
+  }
+
+  /* Key hint */
+  .key-hint {
+    position: fixed;
+    bottom: 16px; right: 16px;
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.12);
+    z-index: 1;
+    user-select: none;
+    letter-spacing: 0.5px;
+  }
+
+  /* History */
+  .history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    max-height: 120px;
+    overflow-y: auto;
+  }
+
+  .history-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.55);
+    padding: 3px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .history-item .hi-num {
+    font-weight: 800;
+    color: var(--gold);
+    min-width: 20px;
+  }
+
+  @media (max-width: 620px) {
+    .wheel-outer { width: 300px; height: 300px; }
+    .panel { width: 100%; max-width: 380px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎯 Vòng Quay Vận May</h1>
+  <p>Thử vận may của bạn ngay hôm nay!</p>
+</header>
+
+<div class="main-wrap">
+  <!-- Wheel -->
+  <div class="wheel-area">
+    <div class="wheel-outer">
+      <canvas id="wheelCanvas" width="380" height="380"></canvas>
+      <div class="arrow-wrap">
+        <div class="arrow"></div>
+      </div>
+      <button class="center-btn" onclick="spinWheel()">QUAY<br>THÔI</button>
+    </div>
+    <button class="spin-btn" id="spinBtn" onclick="spinWheel()">🎲 QUAY NGAY</button>
+  </div>
+
+  <!-- Panel -->
+  <div style="display:flex;flex-direction:column;gap:16px;">
+
+    <!-- Turns -->
+    <div class="panel">
+      <h2>⚡ Trạng Thái</h2>
+      <div class="turns-info">
+        <span>Lượt còn lại</span>
+        <span class="turns-count" id="turnsDisplay">∞</span>
+      </div>
+      <div class="result-badge" id="resultBadge">
+        <span class="result-label">Kết quả gần nhất</span>
+        <span class="result-value" id="resultText">—</span>
+      </div>
+    </div>
+
+    <!-- Entries -->
+    <div class="panel">
+      <h2>📋 Danh Sách</h2>
+      <ul class="entries-list" id="entriesList"></ul>
+      <div class="add-row">
+        <input class="add-input" id="addInput" placeholder="Thêm lựa chọn..." maxlength="30" onkeydown="if(event.key==='Enter')addEntry()">
+        <button class="add-btn" onclick="addEntry()">+</button>
+      </div>
+    </div>
+
+    <!-- History -->
+    <div class="panel" id="historyPanel" style="display:none;">
+      <h2>📜 Lịch Sử</h2>
+      <div class="history-list" id="historyList"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ========= ADMIN MODAL ========= -->
+<div class="modal-overlay" id="adminModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('adminModal')">✕</button>
+    <div class="modal-icon">🔐</div>
+    <h2>Cài Đặt Lượt Quay</h2>
+    <p class="sub">Nhập số lượt và đặt mật khẩu bảo vệ</p>
+
+    <label>Số lượt cho phép quay</label>
+    <input type="text" id="turnsInput" placeholder="VD: 10  (để trống = không giới hạn)">
+
+    <label>Mật khẩu bảo vệ (captcha)</label>
+    <input type="password" id="captchaInput" placeholder="Đặt mật khẩu...">
+    <div class="modal-hint">* Mật khẩu này sẽ được lưu lại. Lần sau mở trang không cần nhập lại.</div>
+
+    <label>Danh sách lựa chọn (mỗi dòng một mục)</label>
+    <textarea id="bulkInput" placeholder="Lựa chọn 1&#10;Lựa chọn 2&#10;Lựa chọn 3"></textarea>
+
+    <label>Lựa chọn ưu tiên Auto Ra (ví dụ: Gà rán)</label>
+    <input type="text" id="priorityInput" placeholder="Gà rán" maxlength="30">
+    <div class="modal-hint">* Nếu có trong danh sách thì khi quay sẽ auto ra nó (không phân biệt hoa/thường). Để trống = tắt ưu tiên</div>
+
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('adminModal')">Hủy</button>
+      <button class="btn-ok" onclick="saveAdminSettings()">✅ Lưu & Áp Dụng</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========= UNLOCK MODAL ========= -->
+<div class="modal-overlay" id="unlockModal">
+  <div class="modal">
+    <div class="modal-icon">🔒</div>
+    <h2>Xác Thực</h2>
+    <p class="sub">Nhập mật khẩu để tiếp tục</p>
+
+    <label>Mật khẩu</label>
+    <input type="password" id="unlockInput" placeholder="Nhập mật khẩu..." onkeydown="if(event.key==='Enter')doUnlock()">
+
+    <div class="modal-btns">
+      <button class="btn-ok" onclick="doUnlock()">🔓 Xác Nhận</button>
+    </div>
+  </div>
+</div>
+
+<!-- ========= RESULT MODAL ========= -->
+<div class="modal-overlay" id="resultModal">
+  <div class="modal result-modal" style="text-align:center;">
+    <div class="confetti-area" id="confettiArea"></div>
+    <div class="modal-icon">🎉</div>
+    <h2>Kết Quả!</h2>
+    <div class="result-winner" id="resultWinner"></div>
+    <p style="color:rgba(255,255,255,0.5);font-size:0.85rem;margin-bottom:20px;">Chúc mừng bạn đã có được lựa chọn này!</p>
+    <button class="btn-ok" onclick="closeModal('resultModal')">🎊 Tiếp Tục</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="key-hint" id="keyHint">Tip bí mật... 😉</div>
+
+<script>
+// ============ STATE ============
+const COLORS = [
+  '#FF6B6B','#FF9F43','#FECA57','#48DBFB','#FF9FF3',
+  '#54A0FF','#5F27CD','#00D2D3','#1DD1A1','#C8D6E5',
+  '#EE5A24','#009432','#0652DD','#9980FA','#ED4C67'
+];
+
+let entries = [];
+let spinning = false;
+let currentAngle = 0;
+let turnsLeft = Infinity;
+let history = [];
+let autoWinEntry = '';
+let secretBuffer = '';
+const SECRET_KEY = 'mabimat';
+const STORAGE_KEY = 'vongquay_data';
+
+// ============ STORAGE ============
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    if (d.entries && d.entries.length) entries = d.entries;
+    if (d.captcha) window._captcha = d.captcha;
+    if (d.turns !== undefined) {
+      turnsLeft = d.turns === null ? Infinity : d.turns;
+    }
+    if (d.history) history = d.history;
+    if (d.autoWinEntry !== undefined) autoWinEntry = d.autoWinEntry;
+    updateTurnsDisplay();
+    updatePriorityDisplay();
+    renderEntries();
+    renderHistory();
+    drawWheel();
+  } catch(e) {}
+}
+
+function saveData() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      entries,
+      captcha: window._captcha || null,
+      turns: turnsLeft === Infinity ? null : turnsLeft,
+      history,
+      autoWinEntry
+    }));
+  } catch(e) {}
+}
+
+// ============ DEFAULT ENTRIES ============
+function initDefault() {
+  if (!entries.length) {
+    entries = ['Lựa chọn 1','Lựa chọn 2','Lựa chọn 3','Lựa chọn 4','Lựa chọn 5','Lựa chọn 6'];
+    saveData();
+  }
+}
+
+// ============ DRAW WHEEL ============
+function drawWheel(highlightIdx = -1) {
+  const canvas = document.getElementById('wheelCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cx = W/2, cy = H/2;
+  const R = Math.min(W,H)/2 - 8;
+  ctx.clearRect(0, 0, W, H);
+
+  if (!entries.length) {
+    ctx.fillStyle = 'rgba(255,255,255,0.1)';
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.font = 'bold 16px Nunito'; ctx.textAlign = 'center';
+    ctx.fillText('Thêm lựa chọn!', cx, cy);
+    return;
+  }
+
+  const n = entries.length;
+  const arc = (Math.PI * 2) / n;
+
+  for (let i = 0; i < n; i++) {
+    const start = currentAngle + i * arc - Math.PI / 2;
+    const end = start + arc;
+
+    // Slice bg
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, R, start, end);
+    ctx.closePath();
+
+    const baseColor = COLORS[i % COLORS.length];
+    const isHighlight = i === highlightIdx;
+
+    if (isHighlight) {
+      ctx.fillStyle = '#ffffff';
+    } else {
+      // Slight gradient per slice
+      const grad = ctx.createRadialGradient(cx, cy, R*0.3, cx, cy, R);
+      grad.addColorStop(0, lighten(baseColor, 30));
+      grad.addColorStop(1, baseColor);
+      ctx.fillStyle = grad;
+    }
+    ctx.fill();
+
+    // Slice border
+    ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Text
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(start + arc / 2);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = isHighlight ? '#222' : 'rgba(255,255,255,0.95)';
+    ctx.font = `bold ${Math.min(15, 120/n)}px Nunito`;
+    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+    ctx.shadowBlur = 3;
+
+    const maxLen = 14;
+    let txt = entries[i];
+    if (txt.length > maxLen) txt = txt.slice(0, maxLen) + '…';
+    ctx.fillText(txt, R - 14, 5);
+    ctx.restore();
+  }
+
+  // Center circle
+  const cgrad = ctx.createRadialGradient(cx-8, cy-8, 4, cx, cy, 30);
+  cgrad.addColorStop(0, '#fff');
+  cgrad.addColorStop(0.4, '#f7c948');
+  cgrad.addColorStop(1, '#e8a800');
+  ctx.beginPath();
+  ctx.arc(cx, cy, 30, 0, Math.PI*2);
+  ctx.fillStyle = cgrad;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+}
+
+function lighten(hex, amt) {
+  let r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  r = Math.min(255, r+amt); g = Math.min(255, g+amt); b = Math.min(255, b+amt);
+  return '#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');
+}
+
+// ============ SPIN ============
+function spinWheel() {
+  if (spinning) return;
+  if (!entries.length) { showToast('⚠️ Hãy thêm lựa chọn trước!'); return; }
+  if (turnsLeft !== Infinity && turnsLeft <= 0) {
+    showToast('❌ Hết lượt quay rồi!');
+    return;
+  }
+
+  // === ƯU TIÊN AUTO RA (mới) ===
+  const n = entries.length;
+  let targetIdx = -1;
+  if (autoWinEntry && n > 0) {
+    const lowerAuto = autoWinEntry.toLowerCase().trim();
+    targetIdx = entries.findIndex(e => e.toLowerCase().trim() === lowerAuto);
+  }
+
+  spinning = true;
+  document.getElementById('spinBtn').disabled = true;
+
+  // Tính góc quay (nếu có ưu tiên thì auto dừng đúng vị trí)
+  let totalRotation;
+  const startAngleForCalc = currentAngle;
+  if (targetIdx !== -1) {
+    const arc = (Math.PI * 2) / n;
+    const targetAdjusted = targetIdx * arc + arc / 2;
+    let desiredA = (Math.PI * 1.5 - targetAdjusted + Math.PI * 2) % (Math.PI * 2);
+    let diff = desiredA - startAngleForCalc;
+    const baseSpins = 5;
+    totalRotation = baseSpins * Math.PI * 2 + diff;
+    while (totalRotation < 8 * Math.PI) {
+      totalRotation += Math.PI * 2;
+    }
+  } else {
+    totalRotation = (Math.random() * 720 + 1440) * (Math.PI / 180);
+  }
+
+  const duration = 4500;
+  const start = performance.now();
+  const startAngle = currentAngle;
+
+  function easeOut(t) { return 1 - Math.pow(1 - t, 4); }
+
+  function frame(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = easeOut(progress);
+    currentAngle = startAngle + totalRotation * eased;
+    drawWheel();
+    if (progress < 1) {
+      requestAnimationFrame(frame);
+    } else {
+      spinning = false;
+      document.getElementById('spinBtn').disabled = false;
+      showResult();
+      if (turnsLeft !== Infinity) {
+        turnsLeft--;
+        updateTurnsDisplay();
+        saveData();
+      }
+    }
+  }
+
+  requestAnimationFrame(frame);
+}
+
+function showResult() {
+  const n = entries.length;
+  const arc = (Math.PI * 2) / n;
+  let a = ((currentAngle % (Math.PI*2)) + Math.PI*2) % (Math.PI*2);
+  let adjusted = (Math.PI*1.5 - a + Math.PI*2) % (Math.PI*2);
+  const idx = Math.floor(adjusted / arc) % n;
+
+  const winner = entries[idx];
+  document.getElementById('resultText').textContent = winner;
+  document.getElementById('resultWinner').textContent = winner;
+
+  // Confetti
+  const area = document.getElementById('confettiArea');
+  area.innerHTML = '';
+  for (let i = 0; i < 22; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'confetti-dot';
+    dot.style.cssText = `
+      left:${Math.random()*100}%;
+      top:${Math.random()*30}%;
+      background:${COLORS[Math.floor(Math.random()*COLORS.length)]};
+      animation-delay:${Math.random()*0.5}s;
+      animation-duration:${1.2+Math.random()*0.8}s;
+      transform:rotate(${Math.random()*360}deg);
+    `;
+    area.appendChild(dot);
+  }
+
+  // History
+  history.unshift({ idx: history.length+1, result: winner });
+  if (history.length > 20) history.pop();
+  renderHistory();
+  saveData();
+
+  setTimeout(() => {
+    document.getElementById('adminModal').classList.remove('active');
+    document.getElementById('resultModal').classList.add('active');
+  }, 300);
+}
+
+// ============ ENTRIES ============
+function renderEntries() {
+  const ul = document.getElementById('entriesList');
+  ul.innerHTML = '';
+  entries.forEach((e, i) => {
+    const li = document.createElement('li');
+    li.className = 'entry-item';
+    li.innerHTML = `
+      <span class="entry-dot" style="background:${COLORS[i%COLORS.length]}"></span>
+      <span class="entry-text">${e}</span>
+      <button class="entry-del" onclick="removeEntry(${i})">✕</button>
+    `;
+    ul.appendChild(li);
+  });
+  drawWheel();
+}
+
+function addEntry() {
+  const inp = document.getElementById('addInput');
+  const val = inp.value.trim();
+  if (!val) return;
+  entries.push(val);
+  inp.value = '';
+  renderEntries();
+  saveData();
+  showToast('✅ Đã thêm: ' + val);
+}
+
+function removeEntry(i) {
+  entries.splice(i, 1);
+  renderEntries();
+  saveData();
+}
+
+// ============ HISTORY ============
+function renderHistory() {
+  const panel = document.getElementById('historyPanel');
+  const list = document.getElementById('historyList');
+  if (!history.length) { panel.style.display = 'none'; return; }
+  panel.style.display = '';
+  list.innerHTML = '';
+  history.slice(0,10).forEach((h, idx) => {
+    const div = document.createElement('div');
+    div.className = 'history-item';
+    div.innerHTML = `<span class="hi-num">#${h.idx}</span><span>${h.result}</span>`;
+    list.appendChild(div);
+  });
+}
+
+// ============ TURNS ============
+function updateTurnsDisplay() {
+  const el = document.getElementById('turnsDisplay');
+  el.textContent = turnsLeft === Infinity ? '∞' : turnsLeft;
+  el.style.color = (turnsLeft !== Infinity && turnsLeft <= 3) ? '#ff6b6b' : 'var(--gold)';
+}
+
+// ============ PRIORITY DISPLAY (mới) ============
+function updatePriorityDisplay() {
+  const info = document.getElementById('priorityInfo');
+  if (!info) return;
+  const disp = document.getElementById('autoDisplay');
+  if (autoWinEntry) {
+    info.style.display = '';
+    disp.textContent = autoWinEntry.length > 15 ? autoWinEntry.substring(0, 12) + '…' : autoWinEntry;
+    disp.style.color = '#ff9ff3';
+  } else {
+    info.style.display = 'none';
+  }
+}
+
+// ============ ADMIN ============
+function openAdminModal() {
+  const saved = window._captcha;
+  if (saved) {
+    document.getElementById('unlockInput').value = '';
+    document.getElementById('unlockModal').classList.add('active');
+  } else {
+    populateAdminModal();
+    document.getElementById('adminModal').classList.add('active');
+  }
+}
+
+function doUnlock() {
+  const val = document.getElementById('unlockInput').value;
+  if (val === window._captcha) {
+    closeModal('unlockModal');
+    populateAdminModal();
+    document.getElementById('adminModal').classList.add('active');
+  } else {
+    document.getElementById('unlockInput').style.borderColor = '#ff6b6b';
+    showToast('❌ Sai mật khẩu!');
+    setTimeout(() => document.getElementById('unlockInput').style.borderColor = '', 1000);
+  }
+}
+
+function populateAdminModal() {
+  document.getElementById('turnsInput').value = turnsLeft === Infinity ? '' : turnsLeft;
+  document.getElementById('captchaInput').value = window._captcha || '';
+  document.getElementById('bulkInput').value = entries.join('\n');
+  document.getElementById('priorityInput').value = autoWinEntry || '';
+}
+
+function saveAdminSettings() {
+  const turnsVal = document.getElementById('turnsInput').value.trim();
+  const captchaVal = document.getElementById('captchaInput').value.trim();
+  const bulkVal = document.getElementById('bulkInput').value.trim();
+
+  // Turns
+  if (turnsVal === '' || turnsVal === '0') {
+    turnsLeft = Infinity;
+  } else {
+    const n = parseInt(turnsVal);
+    turnsLeft = isNaN(n) || n < 0 ? Infinity : n;
+  }
+
+  // Captcha
+  if (captchaVal) window._captcha = captchaVal;
+
+  // Entries
+  if (bulkVal) {
+    const lines = bulkVal.split('\n').map(l=>l.trim()).filter(l=>l.length);
+    if (lines.length) entries = lines;
+  }
+
+  // Priority Auto (mới)
+  const priorityVal = document.getElementById('priorityInput').value.trim();
+  autoWinEntry = priorityVal || '';
+
+  updateTurnsDisplay();
+  renderEntries();
+  updatePriorityDisplay();
+  saveData();
+  closeModal('adminModal');
+  showToast('✅ Đã lưu cài đặt!');
+}
+
+// ============ MODAL HELPERS ============
+function closeModal(id) {
+  document.getElementById(id).classList.remove('active');
+}
+
+// Close on overlay click
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('active');
+  });
+});
+
+// ============ SECRET KEY COMBO ============
+document.addEventListener('keydown', function(e) {
+  secretBuffer += e.key.toLowerCase();
+  if (secretBuffer.length > SECRET_KEY.length) {
+    secretBuffer = secretBuffer.slice(-SECRET_KEY.length);
+  }
+  if (secretBuffer === SECRET_KEY) {
+    secretBuffer = '';
+    openAdminModal();
+    const hint = document.getElementById('keyHint');
+    hint.style.color = 'rgba(247,201,72,0.6)';
+    hint.textContent = '🔐 Mã bí mật kích hoạt!';
+    setTimeout(() => {
+      hint.style.color = 'rgba(255,255,255,0.12)';
+      hint.textContent = 'Tip bí mật... 😉';
+    }, 2000);
+  }
+});
+
+// ============ TOAST ============
+function showToast(msg, duration=2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), duration);
+}
+
+// ============ INIT ============
+loadData();
+initDefault();
+renderEntries();
+renderHistory();
+updateTurnsDisplay();
+updatePriorityDisplay();
+drawWheel();
+
+// Resize wheel for mobile
+function resizeWheel() {
+  const canvas = document.getElementById('wheelCanvas');
+  const outer = canvas.parentElement;
+  const size = Math.min(380, window.innerWidth - 80);
+  outer.style.width = size + 'px';
+  outer.style.height = size + 'px';
+  canvas.width = size;
+  canvas.height = size;
+  drawWheel();
+}
+
+window.addEventListener('resize', resizeWheel);
+resizeWheel();
+</script>
+</body>
+</html>
