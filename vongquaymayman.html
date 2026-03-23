@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vòng Quay Vận May</title>
+<title>🎯 Vòng Quay Vận May</title>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -606,7 +606,7 @@
 <body>
 
 <header>
-  <h1>Vòng Quay Vận May</h1>
+  <h1>🎯 Vòng Quay Vận May</h1>
   <p>Thử vận may của bạn ngay hôm nay!</p>
 </header>
 
@@ -620,7 +620,7 @@
       </div>
       <button class="center-btn" onclick="spinWheel()">QUAY<br>THÔI</button>
     </div>
-    <button class="spin-btn" id="spinBtn" onclick="spinWheel()">QUAY NGAY</button>
+    <button class="spin-btn" id="spinBtn" onclick="spinWheel()">🎲 QUAY NGAY</button>
   </div>
 
   <!-- Panel -->
@@ -628,7 +628,7 @@
 
     <!-- Turns -->
     <div class="panel">
-      <h2>Trạng Thái</h2>
+      <h2>⚡ Trạng Thái</h2>
       <div class="turns-info">
         <span>Lượt còn lại</span>
         <span class="turns-count" id="turnsDisplay">∞</span>
@@ -641,7 +641,7 @@
 
     <!-- Entries -->
     <div class="panel">
-      <h2>Danh Sách</h2>
+      <h2>📋 Danh Sách</h2>
       <ul class="entries-list" id="entriesList"></ul>
       <div class="add-row">
         <input class="add-input" id="addInput" placeholder="Thêm lựa chọn..." maxlength="30" onkeydown="if(event.key==='Enter')addEntry()">
@@ -651,7 +651,7 @@
 
     <!-- History -->
     <div class="panel" id="historyPanel" style="display:none;">
-      <h2>Lịch Sử</h2>
+      <h2>📜 Lịch Sử</h2>
       <div class="history-list" id="historyList"></div>
     </div>
 
@@ -662,7 +662,7 @@
 <div class="modal-overlay" id="adminModal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('adminModal')">✕</button>
-    <div class="modal-icon"></div>
+    <div class="modal-icon">🔐</div>
     <h2>Cài Đặt Lượt Quay</h2>
     <p class="sub">Nhập số lượt và đặt mật khẩu bảo vệ</p>
 
@@ -682,7 +682,7 @@
 
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeModal('adminModal')">Hủy</button>
-      <button class="btn-ok" onclick="saveAdminSettings()">Lưu & Áp Dụng</button>
+      <button class="btn-ok" onclick="saveAdminSettings()">✅ Lưu & Áp Dụng</button>
     </div>
   </div>
 </div>
@@ -690,7 +690,7 @@
 <!-- ========= UNLOCK MODAL ========= -->
 <div class="modal-overlay" id="unlockModal">
   <div class="modal">
-    <div class="modal-icon"></div>
+    <div class="modal-icon">🔒</div>
     <h2>Xác Thực</h2>
     <p class="sub">Nhập mật khẩu để tiếp tục</p>
 
@@ -698,7 +698,7 @@
     <input type="password" id="unlockInput" placeholder="Nhập mật khẩu..." onkeydown="if(event.key==='Enter')doUnlock()">
 
     <div class="modal-btns">
-      <button class="btn-ok" onclick="doUnlock()">Xác Nhận</button>
+      <button class="btn-ok" onclick="doUnlock()">🔓 Xác Nhận</button>
     </div>
   </div>
 </div>
@@ -707,16 +707,16 @@
 <div class="modal-overlay" id="resultModal">
   <div class="modal result-modal" style="text-align:center;">
     <div class="confetti-area" id="confettiArea"></div>
-    <div class="modal-icon"></div>
+    <div class="modal-icon">🎉</div>
     <h2>Kết Quả!</h2>
     <div class="result-winner" id="resultWinner"></div>
     <p style="color:rgba(255,255,255,0.5);font-size:0.85rem;margin-bottom:20px;">Chúc mừng bạn đã có được lựa chọn này!</p>
-    <button class="btn-ok" onclick="closeModal('resultModal')">Tiếp Tục</button>
+    <button class="btn-ok" onclick="closeModal('resultModal')">🎊 Tiếp Tục</button>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
-<div class="key-hint" id="keyHint">Tip bí mật... </div>
+<div class="key-hint" id="keyHint">Tip bí mật... 😉</div>
 
 <script>
 // ============ STATE ============
@@ -867,9 +867,9 @@ function lighten(hex, amt) {
 // ============ SPIN ============
 function spinWheel() {
   if (spinning) return;
-  if (!entries.length) { showToast('Hãy thêm lựa chọn trước!'); return; }
+  if (!entries.length) { showToast('⚠️ Hãy thêm lựa chọn trước!'); return; }
   if (turnsLeft !== Infinity && turnsLeft <= 0) {
-    showToast('Hết lượt quay rồi!');
+    showToast('❌ Hết lượt quay rồi!');
     return;
   }
 
@@ -995,7 +995,7 @@ function addEntry() {
   inp.value = '';
   renderEntries();
   saveData();
-  showToast('Đã thêm: ' + val);
+  showToast('✅ Đã thêm: ' + val);
 }
 
 function removeEntry(i) {
@@ -1060,6 +1060,7 @@ function doUnlock() {
     document.getElementById('adminModal').classList.add('active');
   } else {
     document.getElementById('unlockInput').style.borderColor = '#ff6b6b';
+    showToast('❌ Sai mật khẩu!');
     setTimeout(() => document.getElementById('unlockInput').style.borderColor = '', 1000);
   }
 }
@@ -1102,7 +1103,7 @@ function saveAdminSettings() {
   updatePriorityDisplay();
   saveData();
   closeModal('adminModal');
-  showToast('Đã lưu cài đặt!');
+  showToast('✅ Đã lưu cài đặt!');
 }
 
 // ============ MODAL HELPERS ============
@@ -1128,10 +1129,10 @@ document.addEventListener('keydown', function(e) {
     openAdminModal();
     const hint = document.getElementById('keyHint');
     hint.style.color = 'rgba(247,201,72,0.6)';
-    hint.textContent = 'Mã bí mật kích hoạt!';
+    hint.textContent = '🔐 Mã bí mật kích hoạt!';
     setTimeout(() => {
       hint.style.color = 'rgba(255,255,255,0.12)';
-      hint.textContent = 'Tip bí mật...';
+      hint.textContent = 'Tip bí mật... 😉';
     }, 2000);
   }
 });
